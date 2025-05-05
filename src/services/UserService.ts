@@ -8,7 +8,7 @@ class UserService {
       const user = await UserModel.create(userData);
       return user;
     } catch (error: any) {
-      if (error.code === 11000) { // Duplicate key error
+      if (error.code === 11000) {
         throw new BadRequestError('Email already exists');
       }
       throw error;
@@ -51,7 +51,6 @@ class UserService {
       throw new NotFoundError('User not found');
     }
 
-    // Remove password from update data
     if (data.password) {
       delete data.password;
     }
@@ -66,7 +65,6 @@ class UserService {
       return false;
     }
 
-    // Soft delete
     user.deletedAt = new Date();
     await user.save();
     return true;

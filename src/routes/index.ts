@@ -11,8 +11,7 @@ const routes = (app: Express) => {
 
   app.use('/api/v1/health', healthRouter);
   app.use('/api/v1/auth', authRouter);
-  
-  // Protege todas as rotas de usuários
+
   app.use('/api/v1/users', authenticationMiddleware, userRouter);
 
   app.use(notFoundMiddleware);

@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { MongooseLogHooks } from '../hooks/mongooseLogHooks';
 
 export interface IUser extends Document {
   name: string;
@@ -44,7 +45,6 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-// Hash password before saving
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     next();
@@ -56,12 +56,10 @@ UserSchema.pre('save', async function(next) {
   next();
 });
 
-// Method to compare passwords
 UserSchema.methods.comparePassword = async function(enteredPassword: string): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Enable soft delete
 UserSchema.pre(/^find/, function(this: any, next) {
   if (!this.getQuery().includeSoftDeleted) {
     this.where({ deletedAt: null });
@@ -69,6 +67,9 @@ UserSchema.pre(/^find/, function(this: any, next) {
   delete this.getQuery().includeSoftDeleted;
   next();
 });
+
+// Registrar hooks de log para o modelo User
+MongooseLogHooks.registerLogHooks(UserSchema, 'users');
 
 const UserModel = mongoose.model<IUser>('User', UserSchema);
 
